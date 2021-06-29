@@ -1,6 +1,7 @@
 import minimist from 'minimist';
 import { get, toString } from 'lodash';
 import globals from './global';
+import version from './commands/version';
 import help from './commands/help';
 import create from './modules/create';
 import serve from './modules/serve';
@@ -11,6 +12,11 @@ import add from './modules/add';
 const argv = minimist(process.argv.slice(2));
 const mode = toString(get(argv, '_.0', '')).toLowerCase();
 globals.argv = argv;
+
+if (argv['version'] || argv['v']) {
+  version();
+  process.exit(0);
+}
 
 if (argv['help'] || argv['h']) {
   help();
