@@ -1,0 +1,53 @@
+{
+  "private": true,
+  "name": "@tyin/ntwc",
+  "version": "1.0.0",
+  "description": "",
+  "bin": {
+    "ntwc": "./bin/index.js"
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "engines": {
+    "node": ">=12.22.0"
+  },
+  "keywords": [],
+  "author": "Jove Jonovski <jovejonovski@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.2",
+    "@types/dateformat": "^3.0.1",
+    "@types/fs-extra": "^9.0.11",
+    "@types/inquirer": "^7.3.1",
+    "@types/lodash": "^4.14.169",
+    "@types/minimist": "^1.2.1",
+    "@types/node": "^15.12.2",
+    "@types/semver": "^7.3.6",
+    "@types/validate-npm-package-name": "^3.0.2",
+    "@types/yargs": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.2.1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "chokidar": "^3.5.2",
+    "cross-spawn": "^7.0.3",
+    "dateformat": "^4.5.1",
+    "fast-glob": "^3.2.5",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.1.0",
+    "is-invalid-path": "^1.0.2",
+    "json5": "^2.2.0",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.5",
+    "semver": "^7.3.5",
+    "typescript": "^4.3.4",
+    "validate-npm-package-name": "^3.0.0"
+  }
+}

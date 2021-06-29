@@ -1,0 +1,55 @@
+
+Generator:
+  ✔ Parse arguments & questions @done(21-06-29 05:10)
+  Workspace:
+    ✔ Check for valid directory before creating @done(21-06-29 05:08)
+    ✔ Generate 'src' directory @done(21-06-29 05:08)
+    ✔ Generate 'dist' directory @done(21-06-29 05:08)
+    ✔ Generate 'resources' directory @done(21-06-29 05:08)
+    ✔ Generate basic scripts @done(21-06-29 05:08)
+  NTWC:
+    ✔ Generate config @done(21-06-29 05:08)
+  Package:
+    ✔ Generate package.json config @done(21-06-29 05:08)
+    ✔ Validate package name @done(21-06-29 05:08)
+    ✔ Install required packages @high @done(21-06-29 05:08)
+  TypeScript:
+    ✔ Generate config @done(21-06-29 05:08)
+  WebPack:
+    ✘ Generate config @cancelled(21-06-28 17:36)
+      No need of webpack.config.js, all basic informations can be
+      dragged from other config files and used during webpack compilation
+
+  ESLint:
+    ✔ Generate config @done(21-06-29 05:08)
+  Prettier:
+    ✔ Generate config @done(21-06-29 05:08)
+    ✔ Generate ignore config @done(21-06-29 05:08)
+
+Builder:
+  ☐ Parse arguments
+  ☐ Compile project
+  ☐ Correct paths (from tsconfig.json)
+  ☐ Correct ES Module import paths
+  ☐ Generate .d.ts
+  ☐ Copy /resources
+  ☐ Bundle with webpack if enabled
+  ☐ Generate package.json
+
+Watcher:
+  ☐ Parse arguments
+  ☐ Watch for code changes
+  ☐ Watch for /resources changes
+  ☐ Compile on change
+  ☐ Correct paths (from tsconfig.json)
+  ☐ Correct ES Module import paths
+
+Add:
+  ☐ Entry creator
+
+Changer:
+  ☐ Change Target
+  ☐ Change Module Kind
+
+Global:
+  ☐ Comment Code
