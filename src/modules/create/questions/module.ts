@@ -31,7 +31,8 @@ export default async function (): Promise<void> {
       return findDefaultIndex();
     },
     filter(value: string) {
-      return toString(value).toLowerCase();
+      value = toString(value).toLowerCase();
+      return value === 'esmodule' ? 'module' : value;
     }
   });
 

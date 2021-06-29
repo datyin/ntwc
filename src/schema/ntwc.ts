@@ -1,5 +1,5 @@
 import { SemVerNumber } from './primitives';
-export type Target = SemVerNumber | 'esnext';
+export type Target = SemVerNumber | 'esnext' | 'custom';
 export type Module = 'esnext' | 'module' | 'commonjs';
 
 export interface Entry {

@@ -1,6 +1,7 @@
 import semver from 'semver';
+import { isPlainObject, assignIn } from 'lodash';
 import log from '../lib/logger';
-import { saveConfig } from '../lib/filesystem';
+import { readJson, saveConfig } from '../lib/filesystem';
 import globals from '../global';
 
 const fileName = 'tsconfig.json';
@@ -152,4 +153,12 @@ const create = async (): Promise<void> => {
   log.print(`✔️  ${fileName} generated.`);
 };
 
-export { config, create };
+const load = async (): Promise<void> => {
+  const cfg = readJson(`./${fileName}`);
+
+  if (isPlainObject(cfg)) {
+    assignIn(config, cfg);
+  }
+};
+
+export { config, create, load };

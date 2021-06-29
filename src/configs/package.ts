@@ -1,9 +1,9 @@
+import spawn from 'cross-spawn';
+import { assignIn, isPlainObject, set } from 'lodash';
 import log from '../lib/logger';
-import { saveConfig } from '../lib/filesystem';
+import { readJson, saveConfig } from '../lib/filesystem';
 import { getDefaultAuthor } from '../modules/create/defaults';
 import globals from '../global';
-import { set } from 'lodash';
-import spawn from 'cross-spawn';
 
 const fileName = 'package.json';
 
@@ -81,4 +81,12 @@ const install = async (): Promise<void> => {
   }
 };
 
-export { create, install };
+const load = async (): Promise<void> => {
+  const cfg = readJson(`./${fileName}`);
+
+  if (isPlainObject(cfg)) {
+    assignIn(config, cfg);
+  }
+};
+
+export { config, create, install, load };

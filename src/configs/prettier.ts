@@ -1,5 +1,6 @@
+import { assignIn, isPlainObject } from 'lodash';
 import log from '../lib/logger';
-import { createFile, saveConfig } from '../lib/filesystem';
+import { createFile, readJson, saveConfig } from '../lib/filesystem';
 
 const fileName = '.prettierrc.json';
 const fileNameIgnore = '.prettierignore';
@@ -35,4 +36,12 @@ const createIgnorePattern = async (): Promise<void> => {
   log.print(`✔️  ${fileNameIgnore} generated.`);
 };
 
-export { config, create, createIgnorePattern };
+const load = async (): Promise<void> => {
+  const cfg = readJson(`./${fileName}`);
+
+  if (isPlainObject(cfg)) {
+    assignIn(config, cfg);
+  }
+};
+
+export { config, create, createIgnorePattern, load };

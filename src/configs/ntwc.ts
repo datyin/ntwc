@@ -1,13 +1,13 @@
-import { RECOMMANDED_VERSION } from '../lib/version';
+import { assignIn, isPlainObject, set } from 'lodash';
 import log from '../lib/logger';
-import { Config, Module, Target } from '../schema/ntwc';
-import { saveConfig } from '../lib/filesystem';
+import { RECOMMANDED_VERSION } from '../lib/version';
+import { readJson, saveConfig } from '../lib/filesystem';
 import globals from '../global';
-import { set } from 'lodash';
+import * as Schema from '../schema/ntwc';
 
 const fileName = '.ntwcrc.json';
 
-const config: Config = {
+const config: Schema.Config = {
   target: RECOMMANDED_VERSION,
   module: 'module',
   builder: {
@@ -28,8 +28,8 @@ const config: Config = {
 const create = async (): Promise<void> => {
   log.print(`⏳  Generating ${fileName}...`);
 
-  config.target = globals.project.target as Target;
-  config.module = globals.project.module as Module;
+  config.target = globals.project.target as Schema.Target;
+  config.module = globals.project.module as Schema.Module;
 
   if (globals.project.addons.webpack) {
     set(config, 'builder.bundle', true);
@@ -45,4 +45,12 @@ const create = async (): Promise<void> => {
   log.print(`✔️  ${fileName} generated.`);
 };
 
-export { config, create };
+const load = async (): Promise<void> => {
+  const cfg = readJson(`./${fileName}`);
+
+  if (isPlainObject(cfg)) {
+    assignIn(config, cfg);
+  }
+};
+
+export { config, create, load };

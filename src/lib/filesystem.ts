@@ -26,7 +26,7 @@ export function fullPath(input: string): string {
   return input;
 }
 
-export function readJson(path: string, fallback: unknown): unknown {
+export function readJson(path: string, fallback: unknown = null): unknown {
   path = fullPath(path);
 
   try {
