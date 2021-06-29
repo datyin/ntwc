@@ -61,8 +61,8 @@ To execute script after successfully file you have to set `runAfterBuild: true` 
 {
   "entries": [
     {
-      "script": 'index',
-      "argv": '',
+      "script": "index",
+      "argv": "",
       "runAfterBuild": true
     }
   ]
@@ -76,8 +76,8 @@ Same method as `Build Mode` is used except during serve mode when reading from `
 {
   "entries": [
     {
-      "script": 'index',
-      "argv": '',
+      "script": "index",
+      "argv": "",
       "runAfterDevBuild": true
     }
   ]
@@ -120,7 +120,7 @@ This will:
 
 ---
 ## .ntwcrc.json
-```json
+```json5
 {
   "target": "esnext" or "14.0.0",
   "module": "module", // esnext, module or commonjs
@@ -133,8 +133,8 @@ This will:
   // Also this list will be used if using webpack to point entry points.
   "entries": [
     {
-      "script": 'index', // point to script name without extension ./src/{script}.ts
-      "argv": '', // Pass arguments to current script. process.argv.
+      "script": "index", // point to script name without extension ./src/{script}.ts
+      "argv": "", // Pass arguments to current script. process.argv.
       "runAfterDevBuild": true, // Execute current script after successfull build during serve mode
       "runAfterBuild": false // Execute current script after successfully build for production mode
     }
