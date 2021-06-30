@@ -30,7 +30,10 @@ const create = async (): Promise<void> => {
 const createIgnorePattern = async (): Promise<void> => {
   log.print(`⏳  Generating ${fileNameIgnore}...`);
 
-  createFile(`./${fileNameIgnore}`, [`dist/`, `node_modules/`, `package-lock.json`]);
+  if (!createFile(`./${fileNameIgnore}`, [`dist/`, `node_modules/`, `package-lock.json`])) {
+    log.error(`❌  Failed to generate ${fileNameIgnore}`);
+    process.exit(1);
+  }
 
   log.clearLastLine();
   log.print(`✔️  ${fileNameIgnore} generated.`);

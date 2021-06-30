@@ -1,5 +1,5 @@
+import _ from 'lodash';
 import spawn from 'cross-spawn';
-import { assignIn, isPlainObject, set } from 'lodash';
 import log from '../lib/logger';
 import { readJson, saveConfig } from '../lib/filesystem';
 import { getDefaultAuthor } from '../modules/create/defaults';
@@ -35,7 +35,7 @@ const create = async (): Promise<void> => {
   config.type = globals.project.module === 'commonjs' ? 'commonjs' : 'module';
 
   if (globals.project.target !== 'esnext') {
-    set(config, 'engines.node', `>=${globals.project.target}`);
+    _.set(config, 'engines.node', `>=${globals.project.target}`);
   }
 
   if (!saveConfig(`./${fileName}`, config)) {
@@ -84,9 +84,21 @@ const install = async (): Promise<void> => {
 const load = async (): Promise<void> => {
   const cfg = readJson(`./${fileName}`);
 
-  if (isPlainObject(cfg)) {
-    assignIn(config, cfg);
+  if (_.isPlainObject(cfg)) {
+    _.assignIn(config, cfg);
   }
 };
 
-export { config, create, install, load };
+const dependencies = (): Record<string, string> => {
+  const dep: Record<string, string> = {};
+
+  const mainDependencies = _.get(config, 'dependencies', {});
+  const devDependencies = _.get(config, 'devDependencies', {});
+
+  _.forEach(mainDependencies, (v, k) => (dep[k] = v));
+  _.forEach(devDependencies, (v, k) => (dep[k] = v));
+
+  return dep;
+};
+
+export { config, create, install, load, dependencies };

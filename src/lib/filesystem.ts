@@ -103,36 +103,72 @@ export function isEmptyDirectory(path: string): boolean {
   }
 }
 
-export function createDir(path: string): void {
+export function emptyDir(path: string): boolean {
+  try {
+    path = fullPath(path);
+    fs.emptyDirSync(path);
+
+    return true;
+  } catch (error) {
+    if (error?.message) {
+      log.error(error.message);
+    }
+
+    return false;
+  }
+}
+
+export function createDir(path: string): boolean {
   path = fullPath(path);
 
   try {
     fs.ensureDirSync(path);
+    return true;
   } catch (error) {
     if (error.message) {
       log.error(error.message);
     }
 
-    process.exit(1);
+    return false;
   }
 }
 
-export function createFile(path: string, content: unknown): void {
+export function createFile(path: string, content: unknown, overwrite = false): boolean {
   path = fullPath(path);
 
   try {
-    if (!fs.pathExistsSync(path)) {
-      if (_.isArray(content)) {
-        content = content.join('\n') + '\n';
-      }
-
-      fs.outputFileSync(path, content, { encoding: 'utf8' });
+    if (!overwrite && fs.pathExistsSync(path)) {
+      return false;
     }
+
+    if (_.isArray(content)) {
+      content = content.join('\n') + '\n';
+    }
+
+    fs.outputFileSync(path, content, { encoding: 'utf8' });
+
+    return true;
   } catch (error) {
     if (error.message) {
       log.error(error.message);
     }
 
-    process.exit(1);
+    return false;
+  }
+}
+
+export function copy(from: string, to: string): boolean {
+  try {
+    from = fullPath(from);
+    to = fullPath(to);
+
+    fs.copySync(from, to);
+    return true;
+  } catch (error) {
+    if (error?.message) {
+      log.error(error.message);
+    }
+
+    return false;
   }
 }

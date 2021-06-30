@@ -1,8 +1,11 @@
+import ts from 'typescript';
 import semver from 'semver';
-import { isPlainObject, assignIn } from 'lodash';
+import _ from 'lodash';
 import log from '../lib/logger';
-import { readJson, saveConfig } from '../lib/filesystem';
+import { pathSlash, readJson, saveConfig } from '../lib/filesystem';
 import globals from '../global';
+import { getEntries } from '../common/entries';
+import * as TSC from '../schema/tsc';
 
 const fileName = 'tsconfig.json';
 
@@ -156,9 +159,99 @@ const create = async (): Promise<void> => {
 const load = async (): Promise<void> => {
   const cfg = readJson(`./${fileName}`);
 
-  if (isPlainObject(cfg)) {
-    assignIn(config, cfg);
+  if (_.isPlainObject(cfg)) {
+    _.assignIn(config, cfg);
   }
 };
 
-export { config, create, load };
+const formatHost: ts.FormatDiagnosticsHost = {
+  getCanonicalFileName: (path) => path,
+  getCurrentDirectory: ts.sys.getCurrentDirectory,
+  getNewLine: () => ts.sys.newLine
+};
+
+const logDiagnostics = (diagnostics: ts.Diagnostic[]): void => {
+  const message =
+    !!ts.sys.writeOutputIsTTY && ts.sys.writeOutputIsTTY()
+      ? ts.formatDiagnosticsWithColorAndContext(diagnostics, formatHost)
+      : ts.formatDiagnostics(diagnostics, formatHost);
+
+  if (message) {
+    log.error(message);
+  }
+};
+
+const parse = (): ts.ParsedCommandLine => {
+  const cfg = _.cloneDeep(config);
+  const fileNames = getEntries();
+
+  if (!fileNames || !fileNames.length) {
+    log.error('Unable to find entrie points.');
+    process.exit(1);
+  }
+
+  _.unset(cfg, 'include');
+  _.set(cfg, 'files', fileNames);
+
+  const parsed = ts.parseJsonConfigFileContent(cfg, ts.sys, globals.project.root);
+
+  if (parsed.errors?.length) {
+    logDiagnostics(parsed.errors);
+    process.exit(1);
+  }
+
+  return parsed;
+};
+
+const paths = (): TSC.Paths[] => {
+  const output: TSC.Paths[] = [];
+  const pathsFound = _.get(config, 'compilerOptions.paths', {});
+
+  if (!_.isPlainObject(pathsFound) || _.isEmpty(pathsFound)) {
+    return output;
+  }
+
+  _.forEach(pathsFound, (pathOptions: string[], alias: string) => {
+    alias = _.toString(pathSlash(alias).split('/*')[0]);
+
+    // Incorrect alias
+    if (!alias) {
+      return;
+    }
+
+    let path = _.toString(_.get(pathOptions, '0', ''));
+    path = _.toString(pathSlash(path).split('/*')[0]);
+
+    // incorrect path
+    if (!path) {
+      return;
+    }
+
+    if (path.startsWith('./src/')) {
+      path = path.slice(6);
+    }
+
+    path = _.trimStart(path, './');
+
+    if (alias && path) {
+      output.push({ alias, path });
+    }
+  });
+
+  // Longest alias at the top so we don't get wrong mapping
+  output.sort((a, b) => {
+    if (a.alias.length > b.alias.length) {
+      return -1;
+    }
+
+    if (a.alias.length < b.alias.length) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return output;
+};
+
+export { config, create, load, parse, logDiagnostics, paths };

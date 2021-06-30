@@ -1,3 +1,4 @@
+import { pathSlash } from './lib/filesystem';
 import * as ProjectSchema from './schema/project';
 
 interface Globals {
@@ -8,7 +9,7 @@ interface Globals {
 const globals: Globals = {
   argv: {},
   project: {
-    root: process.cwd(),
+    root: pathSlash(process.cwd()),
     name: '',
     version: '1.0.0',
     description: '',

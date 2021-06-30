@@ -7,7 +7,6 @@ export async function create(): Promise<void> {
 
   createDir('./dist');
   createDir('./resources');
-  createDir(`./src/typings/${globals.project.name}`);
   createFile(`./src/typings/${globals.project.name}/index.d.ts`, '');
 
   const script = [`console.log('Project: ${globals.project.name}');`];

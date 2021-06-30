@@ -1,10 +1,9 @@
 import { last } from 'lodash';
 import globals from '../../global';
-import { pathSlash } from '../../lib/filesystem';
 import { getGitUser } from '../../lib/git';
 
 function getDefaultName(): string {
-  const path = pathSlash(globals.project.root);
+  const path = globals.project.root;
 
   if (!path) {
     return 'ntwc-project';
