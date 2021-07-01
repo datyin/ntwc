@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import log from '../lib/logger';
 
-export default (): void => {
+export default function (): void {
   log.info(
     'Usage:\n',
 
@@ -16,4 +16,4 @@ export default (): void => {
     `To add new entry:\n`,
     chalk`    {blue ntwc} {cyan add} {gray.italic [options]}\n`
   );
-};
+}

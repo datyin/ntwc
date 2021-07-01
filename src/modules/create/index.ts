@@ -11,7 +11,7 @@ import * as eslint from '../../configs/eslint';
 import * as prettier from '../../configs/prettier';
 import { isEmptyDirectory } from '../../lib/filesystem';
 
-export default async (): Promise<void> => {
+export default async function (): Promise<void> {
   if (!isEmptyDirectory(globals.project.root)) {
     log.error(`❌  Destination directory is not empty!`);
     process.exit(1);
@@ -34,4 +34,4 @@ export default async (): Promise<void> => {
   await prettier.createIgnorePattern();
 
   log.success(`🤓  All set and ready! Happy codding!`);
-};
+}

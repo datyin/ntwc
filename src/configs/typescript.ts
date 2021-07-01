@@ -9,7 +9,7 @@ import * as TSC from '../schema/tsc';
 
 const fileName = 'tsconfig.json';
 
-const config = {
+export const config = {
   compilerOptions: {
     target: 'ES2020',
     lib: ['ES2020'],
@@ -141,7 +141,7 @@ function setTarget(): void {
   }
 }
 
-const create = async (): Promise<void> => {
+export async function create(): Promise<void> {
   log.print(`⏳  Generating ${fileName}...`);
 
   setTarget();
@@ -154,15 +154,15 @@ const create = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
-};
+}
 
-const load = async (): Promise<void> => {
+export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
   if (_.isPlainObject(cfg)) {
     _.assignIn(config, cfg);
   }
-};
+}
 
 const formatHost: ts.FormatDiagnosticsHost = {
   getCanonicalFileName: (path) => path,
@@ -170,7 +170,7 @@ const formatHost: ts.FormatDiagnosticsHost = {
   getNewLine: () => ts.sys.newLine
 };
 
-const logDiagnostics = (diagnostics: ts.Diagnostic[]): void => {
+export function logDiagnostics(diagnostics: ts.Diagnostic[]): void {
   const message =
     !!ts.sys.writeOutputIsTTY && ts.sys.writeOutputIsTTY()
       ? ts.formatDiagnosticsWithColorAndContext(diagnostics, formatHost)
@@ -179,9 +179,9 @@ const logDiagnostics = (diagnostics: ts.Diagnostic[]): void => {
   if (message) {
     log.error(message);
   }
-};
+}
 
-const parse = (): ts.ParsedCommandLine => {
+export function parse(): ts.ParsedCommandLine {
   const cfg = _.cloneDeep(config);
   const fileNames = getEntries();
 
@@ -201,9 +201,9 @@ const parse = (): ts.ParsedCommandLine => {
   }
 
   return parsed;
-};
+}
 
-const paths = (): TSC.Paths[] => {
+export function paths(): TSC.Paths[] {
   const output: TSC.Paths[] = [];
   const pathsFound = _.get(config, 'compilerOptions.paths', {});
 
@@ -252,6 +252,4 @@ const paths = (): TSC.Paths[] => {
   });
 
   return output;
-};
-
-export { config, create, load, parse, logDiagnostics, paths };
+}

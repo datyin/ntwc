@@ -17,7 +17,7 @@ interface IVersion {
  * @param {unknown} input
  * @return {*}  {(IVersion | null)}
  */
-function getVersion(input: unknown): IVersion | null {
+export function getVersion(input: unknown): IVersion | null {
   if (typeof input === 'number') {
     const num = toFinite(input);
 
@@ -46,7 +46,7 @@ function getVersion(input: unknown): IVersion | null {
   return null;
 }
 
-function getVersionString(input: unknown): SemVerNumber | null {
+export function getVersionString(input: unknown): SemVerNumber | null {
   const version = getVersion(input);
 
   if (!version) {
@@ -55,5 +55,3 @@ function getVersionString(input: unknown): SemVerNumber | null {
 
   return `${version.major}.${version.minor}.${version.patch}`;
 }
-
-export { getVersion, getVersionString };

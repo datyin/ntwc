@@ -1,5 +1,5 @@
 import globals from '../../global';
 
-export default async (): Promise<void> => {
+export default async function (): Promise<void> {
   console.log(globals.argv);
-};
+}

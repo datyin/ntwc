@@ -1,14 +1,12 @@
 const fileName = 'webpack.config.js';
 
-const config = {};
+export const config = {};
 
-const create = async (): Promise<void> => {
+export async function create(): Promise<void> {
   // No need
-};
+}
 
-const load = async (): Promise<void> => {
+export async function load(): Promise<void> {
   // TODO: re-require file
   console.log(fileName);
-};
-
-export { config, create, load };
+}

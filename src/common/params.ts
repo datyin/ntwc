@@ -1,7 +1,7 @@
 import { get, isArray, isUndefined } from 'lodash';
 import globals from '../global';
 
-const getParam = (name: string, alias: string): unknown => {
+export function getParam(name: string, alias: string): unknown {
   let value = get(globals.argv, name, undefined);
 
   if (isUndefined(value) && alias) {
@@ -13,9 +13,9 @@ const getParam = (name: string, alias: string): unknown => {
   }
 
   return value;
-};
+}
 
-const getArrayOfParam = (name: string, alias: string): unknown => {
+export function getArrayOfParam(name: string, alias: string): unknown {
   let value = get(globals.argv, name, undefined);
 
   if (isUndefined(value) && alias) {
@@ -27,6 +27,4 @@ const getArrayOfParam = (name: string, alias: string): unknown => {
   }
 
   return value;
-};
-
-export { getParam, getArrayOfParam };
+}

@@ -11,7 +11,7 @@ import askForTarget from './questions/target';
 import askForModule from './questions/module';
 import askForAddons from './questions/addons';
 
-const setName = (input: unknown): void => {
+function setName(input: unknown): void {
   if (typeof input !== 'string') {
     return;
   }
@@ -22,9 +22,9 @@ const setName = (input: unknown): void => {
   if (isName.validForNewPackages && isName.validForOldPackages) {
     globals.project.name = input as string;
   }
-};
+}
 
-const setTarget = (input: unknown): void => {
+function setTarget(input: unknown): void {
   const str = trim(toString(input)).toLowerCase();
 
   switch (str) {
@@ -48,9 +48,9 @@ const setTarget = (input: unknown): void => {
       return;
     }
   }
-};
+}
 
-const setModuleKind = (input: unknown): void => {
+function setModuleKind(input: unknown): void {
   const str = trim(toString(input)).toLowerCase();
 
   switch (str) {
@@ -69,9 +69,9 @@ const setModuleKind = (input: unknown): void => {
       return;
     }
   }
-};
+}
 
-const setAddon = (addon: string, input: unknown): void => {
+function setAddon(addon: string, input: unknown): void {
   if (!addon) {
     return;
   }
@@ -87,33 +87,33 @@ const setAddon = (addon: string, input: unknown): void => {
       set(globals.project.addons, addon, false);
     }
   }
-};
+}
 
-const setDescription = (input: unknown): void => {
+function setDescription(input: unknown): void {
   const str = trim(toString(input));
 
   if (str) {
     globals.project.description = str;
   }
-};
+}
 
-const setAuthor = (input: unknown): void => {
+function setAuthor(input: unknown): void {
   const str = trim(toString(input));
 
   if (str) {
     globals.project.author = str;
   }
-};
+}
 
-const setVersion = (input: unknown): void => {
+function setVersion(input: unknown): void {
   const str = trim(toString(input));
 
   if (str && semver.valid(str)) {
     globals.project.version = str as Schema.SemVerNumber;
   }
-};
+}
 
-export const parse = async (): Promise<void> => {
+export async function parse(): Promise<void> {
   const name = getParam('name', 'n');
   const target = getParam('target', 't');
   const moduleKind = getParam('module', 'm');
@@ -127,7 +127,7 @@ export const parse = async (): Promise<void> => {
   setAddon('webpack', webpack);
   setAddon('eslint', eslint);
   setAddon('prettier', prettier);
-};
+}
 
 export const answers = async (): Promise<void> => {
   const answers = await askForProject();

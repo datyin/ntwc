@@ -5,7 +5,7 @@ import globals from '../global';
 
 const fileName = '.eslintrc.json';
 
-const config = {
+export const config = {
   env: {
     node: true
   },
@@ -16,7 +16,7 @@ const config = {
   ignorePatterns: ['dist/', 'node_modules/', 'resources/']
 };
 
-const create = async (): Promise<void> => {
+export async function create(): Promise<void> {
   log.print(`⏳  Generating ${fileName}...`);
 
   if (globals.project.addons.prettier) {
@@ -39,14 +39,12 @@ const create = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
-};
+}
 
-const load = async (): Promise<void> => {
+export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
   if (isPlainObject(cfg)) {
     assignIn(config, cfg);
   }
-};
-
-export { config, create, load };
+}

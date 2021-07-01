@@ -10,7 +10,7 @@ import * as pkg from '../../configs/package';
 import * as typescript from '../../configs/typescript';
 import * as webpack from '../../configs/webpack';
 
-const configuration = async (): Promise<void> => {
+async function configuration(): Promise<void> {
   log.info(`📚  Loading configuration files...`);
 
   await ntwc.load();
@@ -23,11 +23,11 @@ const configuration = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  All configuration files were loaded.`);
-};
+}
 
 const createdFiles: Record<string, string> = {};
 
-const build = async (): Promise<void> => {
+async function build(): Promise<void> {
   log.info(`⏳  Building project...`);
 
   const config = typescript.parse();
@@ -73,12 +73,12 @@ const build = async (): Promise<void> => {
   fixImports(config.options, paths, npmModules, createdFiles);
 
   log.success('Compilation finished');
-};
+}
 
-export default async (): Promise<void> => {
+export default async function (): Promise<void> {
   console.log(globals.argv);
   console.clear();
 
   await configuration();
   await build();
-};
+}

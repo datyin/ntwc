@@ -7,7 +7,7 @@ import * as Schema from '../schema/ntwc';
 
 const fileName = '.ntwcrc.json';
 
-const config: Schema.Config = {
+export const config: Schema.Config = {
   target: RECOMMANDED_VERSION,
   module: 'module',
   builder: {
@@ -25,7 +25,7 @@ const config: Schema.Config = {
   ]
 };
 
-const create = async (): Promise<void> => {
+export async function create(): Promise<void> {
   log.print(`⏳  Generating ${fileName}...`);
 
   config.target = globals.project.target as Schema.Target;
@@ -43,14 +43,12 @@ const create = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
-};
+}
 
-const load = async (): Promise<void> => {
+export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
   if (isPlainObject(cfg)) {
     assignIn(config, cfg);
   }
-};
-
-export { config, create, load };
+}

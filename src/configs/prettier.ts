@@ -5,7 +5,7 @@ import { createFile, readJson, saveConfig } from '../lib/filesystem';
 const fileName = '.prettierrc.json';
 const fileNameIgnore = '.prettierignore';
 
-const config = {
+export const config = {
   semi: true,
   singleQuote: true,
   tabWidth: 2,
@@ -14,7 +14,7 @@ const config = {
   endOfLine: 'lf'
 };
 
-const create = async (): Promise<void> => {
+export async function create(): Promise<void> {
   log.print(`⏳  Generating ${fileName}...`);
 
   if (!saveConfig(`./${fileName}`, config)) {
@@ -25,9 +25,9 @@ const create = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
-};
+}
 
-const createIgnorePattern = async (): Promise<void> => {
+export async function createIgnorePattern(): Promise<void> {
   log.print(`⏳  Generating ${fileNameIgnore}...`);
 
   if (!createFile(`./${fileNameIgnore}`, [`dist/`, `node_modules/`, `package-lock.json`])) {
@@ -37,14 +37,12 @@ const createIgnorePattern = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  ${fileNameIgnore} generated.`);
-};
+}
 
-const load = async (): Promise<void> => {
+export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
   if (isPlainObject(cfg)) {
     assignIn(config, cfg);
   }
-};
-
-export { config, create, createIgnorePattern, load };
+}

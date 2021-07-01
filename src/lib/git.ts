@@ -5,7 +5,7 @@ interface IGitUser {
   email: string;
 }
 
-function getGitUser(): IGitUser {
+export function getGitUser(): IGitUser {
   const output = {
     name: '',
     email: ''
@@ -19,5 +19,3 @@ function getGitUser(): IGitUser {
 
   return output;
 }
-
-export { getGitUser };

@@ -2,7 +2,7 @@ import { resolve } from 'path';
 import { readJsonSync } from 'fs-extra';
 import { get } from 'lodash';
 
-export default (): void => {
+export default function (): void {
   const path = resolve(__dirname, '..', '..', 'package.json');
 
   try {
@@ -16,4 +16,4 @@ export default (): void => {
   } catch (_) {
     //
   }
-};
+}

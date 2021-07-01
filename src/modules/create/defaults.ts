@@ -2,7 +2,7 @@ import { last } from 'lodash';
 import globals from '../../global';
 import { getGitUser } from '../../lib/git';
 
-function getDefaultName(): string {
+export function getDefaultName(): string {
   const path = globals.project.root;
 
   if (!path) {
@@ -12,7 +12,7 @@ function getDefaultName(): string {
   return last(path.split('/')) ?? 'ntwc-project';
 }
 
-function getDefaultAuthor(): string {
+export function getDefaultAuthor(): string {
   const user = getGitUser();
 
   if (user.name) {
@@ -21,5 +21,3 @@ function getDefaultAuthor(): string {
 
   return '';
 }
-
-export { getDefaultAuthor, getDefaultName };

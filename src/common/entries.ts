@@ -4,7 +4,7 @@ import * as ntwc from '../configs/ntwc';
 import { fullPath } from '../lib/filesystem';
 import { Entry } from '../schema/ntwc';
 
-const getEntries = (): string[] => {
+export function getEntries(): string[] {
   const entries = get(ntwc, 'config.entries', []);
 
   if (!isArray(entries) || !entries.length) {
@@ -23,6 +23,4 @@ const getEntries = (): string[] => {
   });
 
   return valid;
-};
-
-export { getEntries };
+}

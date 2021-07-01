@@ -3,7 +3,7 @@ import dateFormat from 'dateformat';
 
 const prefix = chalk`[{blue NTWC}]`;
 
-const log = (type: string, ...args: unknown[]): void => {
+function log(type: string, ...args: unknown[]): void {
   const date = dateFormat(new Date(), 'HH:MM:ss');
   const datePrefix = chalk`{gray.bold.italic ${date}}`;
 
@@ -29,18 +29,32 @@ const log = (type: string, ...args: unknown[]): void => {
       break;
     }
   }
-};
+}
 
-const clearLastLine = (): void => {
+function clearLastLine(): void {
   process.stdout.moveCursor(0, -1);
   process.stdout.clearLine(1);
-};
+}
 
-const error = (...args: unknown[]): void => log('ERROR', ...args);
-const warn = (...args: unknown[]): void => log('WARN', ...args);
-const success = (...args: unknown[]): void => log('SUCCESS', ...args);
-const info = (...args: unknown[]): void => log('INFO', ...args);
-const print = (...args: unknown[]): void => log('', ...args);
+function error(...args: unknown[]): void {
+  log('ERROR', ...args);
+}
+
+function warn(...args: unknown[]): void {
+  log('WARN', ...args);
+}
+
+function success(...args: unknown[]): void {
+  log('SUCCESS', ...args);
+}
+
+function info(...args: unknown[]): void {
+  log('INFO', ...args);
+}
+
+function print(...args: unknown[]): void {
+  log('', ...args);
+}
 
 export default {
   print,

@@ -9,13 +9,13 @@ import * as TSC from '../schema/tsc';
 
 type SS = Record<string, string>;
 
-const correctPath = (
+function correctPath(
   content: string,
   imports: IModulesFound[],
   paths: TSC.Paths[],
   pathLevels: number,
   addExtension: boolean
-): string => {
+): string {
   _.forEach(imports, (i) => {
     if (i.type === ScriptType.EXTERNAL_MODULE || i.type === ScriptType.BUILT_IN_MODULE) {
       return;
@@ -61,14 +61,14 @@ const correctPath = (
   });
 
   return content;
-};
+}
 
-const fixImports = (
+export function fixImports(
   options: ts.CompilerOptions,
   paths: TSC.Paths[],
   npmModules: string[],
   files: SS
-): void => {
+): void {
   _.forEach(files, (content, filePath) => {
     const shortPath = filePath.replace(globals.project.root + '/dist/', '');
     const pathLevels = shortPath.split('/').length - 1;
@@ -116,6 +116,4 @@ const fixImports = (
       log.error(error?.message ?? '');
     }
   });
-};
-
-export { fixImports };
+}

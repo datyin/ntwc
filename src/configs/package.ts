@@ -7,7 +7,7 @@ import globals from '../global';
 
 const fileName = 'package.json';
 
-const config = {
+export const config = {
   private: true,
   name: 'ntwc-project',
   version: '1.0.0',
@@ -25,7 +25,7 @@ const config = {
   devDependencies: {}
 };
 
-const create = async (): Promise<void> => {
+export async function create(): Promise<void> {
   log.print(`⏳  Generating ${fileName}...`);
 
   config.name = globals.project.name;
@@ -46,9 +46,9 @@ const create = async (): Promise<void> => {
 
   log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
-};
+}
 
-const install = async (): Promise<void> => {
+export async function install(): Promise<void> {
   log.info('⏳  Installing required packages');
 
   const packages = ['@types/node'];
@@ -79,17 +79,17 @@ const install = async (): Promise<void> => {
     log.error(`❌  Failed to install required packages`, error?.message ?? '');
     process.exit(1);
   }
-};
+}
 
-const load = async (): Promise<void> => {
+export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
   if (_.isPlainObject(cfg)) {
     _.assignIn(config, cfg);
   }
-};
+}
 
-const dependencies = (): Record<string, string> => {
+export function dependencies(): Record<string, string> {
   const dep: Record<string, string> = {};
 
   const mainDependencies = _.get(config, 'dependencies', {});
@@ -99,6 +99,4 @@ const dependencies = (): Record<string, string> => {
   _.forEach(devDependencies, (v, k) => (dep[k] = v));
 
   return dep;
-};
-
-export { config, create, install, load, dependencies };
+}
