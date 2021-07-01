@@ -85,10 +85,23 @@ Same method as `Build Mode` is used except during serve mode when reading from `
 ```
 ---
 ### 3. Adding New Entry Point
+
+Option | Shorthand Option | Description | Default | Values
+------------ | ------------- | ------------- | ------------- | -------------
+`--entry` | `-e` | Name of the entry without extension | `n/a` | `<string>`
+`--argv` | `-a` | Argv for specific entry | `n/a` | `n/a` or `<string>`
+
 To add new entry point for your application you can use following command
 ```bash
 ntwc add --entry "app"
 ```
+
+or
+
+```bash
+ntwc add --entry "app" --argv "--myparam 123"
+```
+
 This will:
 1. Create `./src/app.ts`
 2. Add entry to `./ntwcrc.json`
