@@ -183,7 +183,7 @@ export function logDiagnostics(diagnostics: ts.Diagnostic[]): void {
 
 export function parse(): ts.ParsedCommandLine {
   const cfg = _.cloneDeep(config);
-  const fileNames = getEntries();
+  const fileNames = getEntries().map((e) => e.path);
 
   if (!fileNames || !fileNames.length) {
     log.error('Unable to find entrie points.');

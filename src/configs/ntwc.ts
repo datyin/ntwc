@@ -45,6 +45,18 @@ export async function create(): Promise<void> {
   log.print(`✔️  ${fileName} generated.`);
 }
 
+export async function save(): Promise<void> {
+  log.print(`⏳  Updating ${fileName}...`);
+
+  if (!saveConfig(`./${fileName}`, config)) {
+    log.clearLastLine();
+    log.error(`❌  Failed to update ${fileName}`);
+  }
+
+  log.clearLastLine();
+  log.print(`✔️  ${fileName} updated.`);
+}
+
 export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
