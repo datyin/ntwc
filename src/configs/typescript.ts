@@ -200,6 +200,7 @@ export function parse(): ts.ParsedCommandLine {
     process.exit(1);
   }
 
+  parsed.options.moduleResolution = ts.ModuleResolutionKind.NodeJs;
   parsed.options.outDir = ntwc.config.structure.distribution;
   parsed.options.rootDir = ntwc.config.structure.source;
 

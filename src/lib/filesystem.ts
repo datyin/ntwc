@@ -26,6 +26,17 @@ export function fullPath(input: string): string {
   return input;
 }
 
+export function readSync(path: string, fallback = ''): string {
+  path = fullPath(path);
+
+  try {
+    return fs.readFileSync(path, { encoding: 'utf8' });
+  } catch (error) {
+    log.error('readSync failed', error?.message ?? '');
+    return fallback;
+  }
+}
+
 export function readJson(path: string, fallback: unknown = null): unknown {
   path = fullPath(path);
 

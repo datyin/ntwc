@@ -17,8 +17,6 @@ async function configuration(): Promise<void> {
   if (ntwc.config.builder?.bundle === true) {
     await webpack.load();
   }
-
-  log.clearLastLine();
 }
 
 const createdFiles: Record<string, string> = {};

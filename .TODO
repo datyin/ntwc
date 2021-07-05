@@ -40,11 +40,11 @@ Builder:
 
 Watcher:
   ☐ Parse arguments
-  ☐ Watch for code changes
+  ✔ Watch for code changes @done(21-07-06 00:06)
   ☐ Watch for /resources changes
-  ☐ Compile on change
-  ☐ Correct paths (from tsconfig.json)
-  ☐ Correct ES Module import paths
+  ✔ Compile on change @done(21-07-06 00:06)
+  ✔ Correct paths (from tsconfig.json) @done(21-07-06 00:06)
+  ✔ Correct ES Module import paths @done(21-07-06 00:06)
 
 Add:
   ✔ Entry creator @done(21-07-05 13:27)
