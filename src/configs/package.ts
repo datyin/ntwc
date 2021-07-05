@@ -4,8 +4,10 @@ import log from '../lib/logger';
 import { readJson, saveConfig } from '../lib/filesystem';
 import { getDefaultAuthor } from '../modules/create/defaults';
 import globals from '../global';
+import * as ntwc from './ntwc';
 
 const fileName = 'package.json';
+const npmScript = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 export const config = {
   private: true,
@@ -39,8 +41,6 @@ export async function create(): Promise<void> {
   }
 
   if (!saveConfig(`./${fileName}`, config)) {
-    log.clearLastLine();
-    log.error(`❌  Failed to generate ${fileName}`);
     process.exit(1);
   }
 
@@ -65,8 +65,6 @@ export async function install(): Promise<void> {
     }
   }
 
-  const npmScript = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-
   try {
     spawn.sync(npmScript, ['install', '--save-dev', ...packages], {
       stdio: 'ignore'
@@ -75,9 +73,21 @@ export async function install(): Promise<void> {
     log.clearLastLine();
     log.print(`✔️  All required packages were installed.`);
   } catch (error) {
-    log.clearLastLine();
     log.error(`❌  Failed to install required packages`, error?.message ?? '');
     process.exit(1);
+  }
+}
+
+export async function update(): Promise<void> {
+  log.info('⏳  Updating packages');
+
+  try {
+    spawn.sync(npmScript, ['update'], { stdio: 'ignore' });
+
+    log.clearLastLine();
+    log.print(`✔️  All packages were updated.`);
+  } catch (error) {
+    log.error(`❌  Failed to update packages`, error?.message ?? '');
   }
 }
 
@@ -99,4 +109,61 @@ export function dependencies(): Record<string, string> {
   _.forEach(devDependencies, (v, k) => (dep[k] = v));
 
   return dep;
+}
+
+export async function generate(externals: string[]): Promise<void> {
+  const cfg = {
+    name: config.name,
+    version: config.version,
+    description: config.description,
+    author: config.author,
+    license: config.license,
+    main: '',
+    type: ntwc.config.module === 'commonjs' ? 'commonjs' : 'module',
+    scripts: {
+      start: 'node .'
+    },
+    keywords: [],
+    engines: { node: `>=${ntwc.config.target}` },
+    dependencies: {}
+  };
+
+  if (ntwc.config.target === 'esnext') {
+    _.unset(cfg, 'engines.node');
+  }
+
+  // First entry as main point
+  const firstEntry = _.head(ntwc.config.entries);
+
+  if (firstEntry && firstEntry.script) {
+    _.set(cfg, 'main', `./${firstEntry.script}`);
+  }
+
+  let root = ntwc.config.structure.distribution;
+
+  // Create specific start point for each entry
+  _.forEach(ntwc.config.entries, (entry) => {
+    _.set(cfg, `scripts.start:${entry.script}`, `./${entry.script}.js`);
+  });
+
+  // get used dependencies only
+  const dep = dependencies();
+  const found = {};
+
+  _.forEach(externals, (d) => {
+    if (dep && dep[d]) {
+      _.set(found, d, dep[d]);
+    }
+  });
+
+  _.set(cfg, 'dependencies', found);
+  saveConfig(`${root}/${fileName}`, cfg);
+
+  // bundled
+  if (ntwc.config.builder.bundle) {
+    root = ntwc.config.structure.bundle;
+    _.set(cfg, 'type', 'commonjs');
+
+    saveConfig(`${root}/${fileName}`, cfg);
+  }
 }

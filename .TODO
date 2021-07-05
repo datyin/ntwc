@@ -29,13 +29,14 @@ Generator:
 Builder:
   ☐ Parse arguments
   ✔ Clean /dist/ before compile @done(21-06-30 01:35)
+    ✔ ^ check if its enabled in ntwc @done(21-07-02 00:36)
   ✔ Compile project @done(21-06-30 01:35)
   ✔ Correct paths (from tsconfig.json) @done(21-06-30 05:38)
   ✔ Correct ES Module import paths @done(21-06-30 05:38)
   ☐ Generate .d.ts
   ✔ Copy /resources @done(21-06-30 01:35)
-  ☐ Bundle with webpack if enabled
-  ☐ Generate package.json
+  ✔ Bundle with webpack if enabled @done(21-07-05 13:27)
+  ✔ Generate package.json @done(21-07-05 19:23)
 
 Watcher:
   ☐ Parse arguments
@@ -46,7 +47,7 @@ Watcher:
   ☐ Correct ES Module import paths
 
 Add:
-  ☐ Entry creator
+  ✔ Entry creator @done(21-07-05 13:27)
 
 Changer:
   ☐ Change Target

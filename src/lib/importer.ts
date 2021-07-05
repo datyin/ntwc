@@ -1,10 +1,9 @@
 import _ from 'lodash';
 import ts from 'typescript';
 import { outputFileSync } from 'fs-extra';
-import globals from '../global';
 import { findModules, IModulesFound, ScriptType } from './modules';
 import log from './logger';
-
+import * as ntwc from '../configs/ntwc';
 import * as TSC from '../schema/tsc';
 
 type SS = Record<string, string>;
@@ -68,9 +67,11 @@ export function fixImports(
   paths: TSC.Paths[],
   npmModules: string[],
   files: SS
-): void {
+): string[] {
+  const externals: string[] = [];
+
   _.forEach(files, (content, filePath) => {
-    const shortPath = filePath.replace(globals.project.root + '/dist/', '');
+    const shortPath = filePath.replace(ntwc.config.structure.distribution + '/', '');
     const pathLevels = shortPath.split('/').length - 1;
 
     let contentWithoutComments = content;
@@ -94,6 +95,10 @@ export function fixImports(
           npmModules
         );
 
+        externals.push(
+          ...imports.filter((i) => i.type === ScriptType.EXTERNAL_MODULE).map((i) => i.path)
+        );
+
         content = correctPath(content, imports, paths, pathLevels, true);
         break;
       }
@@ -103,6 +108,10 @@ export function fixImports(
       contentWithoutComments,
       /require\(["|'|`](.*?)["|'|`]\)/gi,
       npmModules
+    );
+
+    externals.push(
+      ...requires.filter((i) => i.type === ScriptType.EXTERNAL_MODULE).map((i) => i.path)
     );
 
     content = correctPath(content, requires, paths, pathLevels, false);
@@ -116,4 +125,6 @@ export function fixImports(
       log.error(error?.message ?? '');
     }
   });
+
+  return externals;
 }

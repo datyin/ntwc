@@ -1,5 +1,4 @@
 import log from '../../lib/logger';
-import globals from '../../global';
 
 import * as ntwc from '../../configs/ntwc';
 import * as pkg from '../../configs/package';
@@ -14,6 +13,4 @@ export default async function (): Promise<void> {
   await typescript.load();
 
   log.print(`✔️  All configuration files were loaded.`);
-
-  console.log(globals.argv, pkg.config);
 }

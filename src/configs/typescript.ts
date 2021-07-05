@@ -6,6 +6,7 @@ import { pathSlash, readJson, saveConfig } from '../lib/filesystem';
 import globals from '../global';
 import { getEntries } from '../common/entries';
 import * as TSC from '../schema/tsc';
+import * as ntwc from './ntwc';
 
 const fileName = 'tsconfig.json';
 
@@ -40,7 +41,7 @@ export const config = {
     paths: {}
   },
   include: ['./src/**/*.ts'],
-  exclude: ['**/node_modules', '**/*.spec.ts', '**/resources']
+  exclude: ['**/node_modules', '**/*.spec.ts', '**/resources', '**/bundle']
 };
 
 function setModule(recommanded: string): string {
@@ -147,7 +148,6 @@ export async function create(): Promise<void> {
   setTarget();
 
   if (!saveConfig(`./${fileName}`, config)) {
-    log.clearLastLine();
     log.error(`❌  Failed to generate ${fileName}`);
     process.exit(1);
   }
@@ -199,6 +199,9 @@ export function parse(): ts.ParsedCommandLine {
     logDiagnostics(parsed.errors);
     process.exit(1);
   }
+
+  parsed.options.outDir = ntwc.config.structure.distribution;
+  parsed.options.rootDir = ntwc.config.structure.source;
 
   return parsed;
 }

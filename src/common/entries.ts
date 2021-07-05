@@ -1,5 +1,4 @@
-import { pathExistsSync } from 'fs-extra';
-import { forEach, get, isArray, toString } from 'lodash';
+import _ from 'lodash';
 import * as ntwc from '../configs/ntwc';
 import { fullPath } from '../lib/filesystem';
 import { Entry } from '../schema/ntwc';
@@ -10,19 +9,20 @@ export interface IEntryOutput {
 }
 
 export function getEntries(): IEntryOutput[] {
-  const entries = get(ntwc, 'config.entries', []);
+  const entries = _.get(ntwc, 'config.entries', []);
 
-  if (!isArray(entries) || !entries.length) {
+  if (!_.isArray(entries) || !entries.length) {
     return [];
   }
 
   const valid: IEntryOutput[] = [];
 
-  forEach(entries, (entry: Entry) => {
-    const src = toString(get(entry, 'script', ''));
-    const path = fullPath(`./src/${src}.ts`);
+  _.forEach(entries, (entry: Entry) => {
+    const src = _.toString(_.get(entry, 'script', '')).trim();
 
-    if (src && pathExistsSync(path)) {
+    if (src) {
+      const path = fullPath(`${ntwc.config.structure.source}/${src}.ts`);
+
       valid.push({
         name: src,
         path: path.toLowerCase()

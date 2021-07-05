@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import ts from 'typescript';
 import log from '../../lib/logger';
-import globals from '../../global';
 import { emptyDir, copy } from '../../lib/filesystem';
 import { fixImports } from '../../lib/importer';
 
@@ -11,8 +10,6 @@ import * as typescript from '../../configs/typescript';
 import * as webpack from '../../configs/webpack';
 
 async function configuration(): Promise<void> {
-  log.info(`📚  Loading configuration files...`);
-
   await ntwc.load();
   await pkg.load();
   await typescript.load();
@@ -22,21 +19,25 @@ async function configuration(): Promise<void> {
   }
 
   log.clearLastLine();
-  log.print(`✔️  All configuration files were loaded.`);
 }
 
 const createdFiles: Record<string, string> = {};
 
 async function build(): Promise<void> {
-  log.info(`⏳  Building project...`);
-
   const config = typescript.parse();
-  const outDir = config.options.outDir ?? globals.project.root + '/dist/';
+  const outDir = config.options.outDir as string;
+
+  // Update packages before build
+  if (ntwc.config.builder.updateBeforeCompile) {
+    await pkg.update();
+  }
 
   // Prepare destination
-  if (!emptyDir(outDir)) {
-    log.error('Failed to clean output directory!');
-    process.exit(1);
+  if (ntwc.config.builder.cleanBeforeCompile) {
+    if (!emptyDir(outDir)) {
+      log.error('Failed to clean output directory!');
+      process.exit(1);
+    }
   }
 
   if (!copy('./resources', outDir)) {
@@ -65,19 +66,30 @@ async function build(): Promise<void> {
 
   if (emitSkipped) {
     log.error('Compilation failed');
-    return;
+    process.exit(1);
   }
 
   const paths = typescript.paths();
   const npmModules = _.keys(pkg.dependencies());
-  fixImports(config.options, paths, npmModules, createdFiles);
+  const externals = fixImports(config.options, paths, npmModules, createdFiles);
 
-  log.success('Compilation finished');
+  if (ntwc.config.builder.bundle) {
+    if (!emptyDir(ntwc.config.structure.bundle)) {
+      log.error('Failed to clean output directory!');
+      process.exit(1);
+    }
+
+    await webpack.compile();
+  }
+
+  await pkg.generate(externals);
+
+  log.success('✔️  Project is compiled!');
 }
 
 export default async function (): Promise<void> {
-  console.log(globals.argv);
   console.clear();
+  log.info(`⏳  Building project...`);
 
   await configuration();
   await build();

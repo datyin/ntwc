@@ -9,7 +9,7 @@ interface Globals {
 const globals: Globals = {
   argv: {},
   project: {
-    root: pathSlash(process.cwd()),
+    root: pathSlash(process.cwd()).toLowerCase(),
     name: '',
     version: '1.0.0',
     description: '',

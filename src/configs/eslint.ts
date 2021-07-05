@@ -13,7 +13,7 @@ export const config = {
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
   rules: {},
-  ignorePatterns: ['dist/', 'node_modules/', 'resources/']
+  ignorePatterns: ['dist/', 'bundle/', 'node_modules/', 'resources/']
 };
 
 export async function create(): Promise<void> {
@@ -32,7 +32,6 @@ export async function create(): Promise<void> {
   }
 
   if (!saveConfig(`./${fileName}`, config)) {
-    log.clearLastLine();
     log.error(`❌  Failed to generate ${fileName}`);
     process.exit(1);
   }

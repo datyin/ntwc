@@ -4,7 +4,6 @@ import globals from '../../global';
 import { createFile, fullPath } from '../../lib/filesystem';
 import { getEntries } from '../../common/entries';
 import log from '../../lib/logger';
-
 import * as ntwc from '../../configs/ntwc';
 
 async function addEntry(input: unknown, argv: unknown): Promise<void> {
@@ -15,7 +14,7 @@ async function addEntry(input: unknown, argv: unknown): Promise<void> {
   }
 
   const path = fullPath(`${globals.project.root}/src/${name}.ts`);
-  createFile(path, `console.log('Entry: ${name}')`);
+  createFile(path, `console.log('Entry: ${name}');\n`);
 
   // Add to confing
   const found = getEntries().find((e) => e.name === name);

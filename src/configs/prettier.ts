@@ -5,6 +5,8 @@ import { createFile, readJson, saveConfig } from '../lib/filesystem';
 const fileName = '.prettierrc.json';
 const fileNameIgnore = '.prettierignore';
 
+const ignored = [`dist/`, `bundle/`, `node_modules/`, `package-lock.json`];
+
 export const config = {
   semi: true,
   singleQuote: true,
@@ -30,7 +32,7 @@ export async function create(): Promise<void> {
 export async function createIgnorePattern(): Promise<void> {
   log.print(`⏳  Generating ${fileNameIgnore}...`);
 
-  if (!createFile(`./${fileNameIgnore}`, [`dist/`, `node_modules/`, `package-lock.json`])) {
+  if (!createFile(`./${fileNameIgnore}`, ignored)) {
     log.error(`❌  Failed to generate ${fileNameIgnore}`);
     process.exit(1);
   }
