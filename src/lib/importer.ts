@@ -1,12 +1,24 @@
 import _ from 'lodash';
 import ts from 'typescript';
-import { outputFileSync } from 'fs-extra';
+import { join } from 'path';
+import { outputFileSync, statSync } from 'fs-extra';
 import { findModules, IModulesFound, ScriptType } from './modules';
 import log from './logger';
 import * as ntwc from '../configs/ntwc';
 import * as TSC from '../schema/tsc';
+import { fullPath } from './filesystem';
 
 type SS = Record<string, string>;
+
+function appendIndex(input: string): string {
+  const path = fullPath(join(ntwc.config.structure.distribution, input));
+
+  try {
+    return statSync(path).isDirectory() ? input + '/index' : input;
+  } catch (error) {
+    return input;
+  }
+}
 
 function correctPath(
   content: string,
@@ -23,8 +35,12 @@ function correctPath(
     if (addExtension && i.type === ScriptType.LOCAL_FILE) {
       // Add extension to local file without extension
       if (!i.path.endsWith('.js')) {
+        const originalPath = i.path;
+        // add missing /index if directory is provided
+        i.path = appendIndex(i.path);
+
         const correct = i.import.replace(
-          `${i.quote}${i.path}${i.quote}`,
+          `${i.quote}${originalPath}${i.quote}`,
           `${i.quote}${i.path}.js${i.quote}`
         );
 
@@ -41,6 +57,7 @@ function correctPath(
 
             // Missing extension
             if (addExtension && !deAlias.endsWith('.js')) {
+              deAlias = appendIndex(deAlias);
               deAlias = `${deAlias}.js`;
             }
 

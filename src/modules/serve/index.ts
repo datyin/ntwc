@@ -15,7 +15,6 @@ import * as typescript from '../../configs/typescript';
 let config: any = {};
 let paths: Schema.Paths[] = [];
 let npmModules: string[] = [];
-let createdFiles: Record<string, string> = {};
 
 function reportDiagnostic(diagnostic: ts.Diagnostic): void {
   logDiagnostics([diagnostic]);
@@ -26,7 +25,6 @@ async function reportWatchStatusChanged(diagnostic: ts.Diagnostic): Promise<void
     case 6031:
     case 6032: {
       console.clear();
-      createdFiles = {};
 
       log.info(
         `🛠️  ${
@@ -41,6 +39,8 @@ async function reportWatchStatusChanged(diagnostic: ts.Diagnostic): Promise<void
     default: {
       if (diagnostic.messageText.toString().startsWith('Found 0 error')) {
         log.success('Watching for file changes.');
+
+        const createdFiles: Record<string, string> = {};
 
         fg.sync(fg.escapePath(ntwc.config.structure.distribution) + '/**/*.js', {
           globstar: true

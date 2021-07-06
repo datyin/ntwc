@@ -68,7 +68,7 @@ export function findModules(
     else if (npmModules.includes(pathWithoutQuotes)) {
       type = ScriptType.EXTERNAL_MODULE;
     }
-    else if (pathWithoutQuotesLC.startsWith('file:') || unixLikePath.startsWith('./')) {
+    else if (pathWithoutQuotesLC.startsWith('file:') || unixLikePath.startsWith('.') || unixLikePath.startsWith('/')) {
       type = ScriptType.LOCAL_FILE;
     }
 
