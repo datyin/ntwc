@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from 'lodash';
 import ts from 'typescript';
 import fg from 'fast-glob';
-import { copy, emptyDir, readSync } from '../../lib/filesystem';
+import { emptyDir, readSync } from '../../lib/filesystem';
 import { logDiagnostics } from '../../configs/typescript';
 import { fixImports } from '../../lib/importer';
 import { execute } from '../../lib/execute';
@@ -12,6 +11,7 @@ import * as ntwc from '../../configs/ntwc';
 import * as pkg from '../../configs/package';
 import * as typescript from '../../configs/typescript';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let config: any = {};
 let paths: Schema.Paths[] = [];
 let npmModules: string[] = [];
@@ -77,11 +77,6 @@ export default async function (): Promise<void> {
       log.error('Failed to clean output directory!');
       process.exit(1);
     }
-  }
-
-  if (!copy('./resources', outDir)) {
-    log.error('Failed to copy resources!');
-    process.exit(1);
   }
 
   const createProgram = ts.createSemanticDiagnosticsBuilderProgram;

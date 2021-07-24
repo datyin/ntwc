@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import fg from 'fast-glob';
 import spawn from 'cross-spawn';
 import log from '../lib/logger';
 import { readJson, saveConfig } from '../lib/filesystem';
@@ -108,6 +109,17 @@ export function dependencies(): Record<string, string> {
   _.forEach(mainDependencies, (v, k) => (dep[k] = v));
   _.forEach(devDependencies, (v, k) => (dep[k] = v));
 
+  fg.sync(fg.escapePath(globals.project.root + '/node_modules') + '/*', {
+    globstar: false,
+    onlyDirectories: true
+  }).forEach((f) => {
+    const name = _.last(f.split('/')) ?? '';
+
+    if (name && !dep[name]) {
+      dep[name] = '';
+    }
+  });
+
   return dep;
 }
 
@@ -148,11 +160,11 @@ export async function generate(externals: string[]): Promise<void> {
 
   // get used dependencies only
   const dep = dependencies();
-  const found = {};
+  const found: Record<string, string> = {};
 
   _.forEach(externals, (d) => {
     if (dep && dep[d]) {
-      _.set(found, d, dep[d]);
+      _.set(found, [d], dep[d]);
     }
   });
 

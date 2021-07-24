@@ -32,7 +32,34 @@ function correctPath(
       return;
     }
 
-    if (addExtension && i.type === ScriptType.LOCAL_FILE) {
+    // Unknown is probably path alias
+    if (i.type === ScriptType.UNKNOWN) {
+      _.forEach(paths, (p) => {
+        // convert alias path to relative path
+        if (i.path.startsWith(p.alias)) {
+          const path = `./${_.repeat('../', pathLevels)}${p.path}`;
+          let deAlias = i.path.replace(p.alias, path);
+
+          // Missing extension
+          if (addExtension && !deAlias.endsWith('.js')) {
+            deAlias = appendIndex(deAlias);
+            deAlias = `${deAlias}.js`;
+          }
+
+          const correct = i.import.replace(
+            `${i.quote}${i.path}${i.quote}`,
+            `${i.quote}${deAlias}${i.quote}`
+          );
+
+          content = content.replace(i.import, correct);
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    if (addExtension) {
       // Add extension to local file without extension
       if (!i.path.endsWith('.js')) {
         const originalPath = i.path;
@@ -45,33 +72,6 @@ function correctPath(
         );
 
         content = content.replace(i.import, correct);
-      }
-    } else {
-      // Unknown is probably path alias
-      if (i.type === ScriptType.UNKNOWN) {
-        _.forEach(paths, (p) => {
-          // convert alias path to relative path
-          if (i.path.startsWith(p.alias)) {
-            const path = `./${_.repeat('../', pathLevels)}${p.path}`;
-            let deAlias = i.path.replace(p.alias, path);
-
-            // Missing extension
-            if (addExtension && !deAlias.endsWith('.js')) {
-              deAlias = appendIndex(deAlias);
-              deAlias = `${deAlias}.js`;
-            }
-
-            const correct = i.import.replace(
-              `${i.quote}${i.path}${i.quote}`,
-              `${i.quote}${deAlias}${i.quote}`
-            );
-
-            content = content.replace(i.import, correct);
-            return false;
-          }
-
-          return true;
-        });
       }
     }
   });
