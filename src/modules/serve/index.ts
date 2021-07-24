@@ -90,8 +90,8 @@ export default async function (): Promise<void> {
   );
 
   const defaultCreateProgram = host.createProgram;
-  host.createProgram = (rootNames: any, options, host, oldProgram) =>
-    defaultCreateProgram(rootNames, options, host, oldProgram);
+  host.createProgram = (rootNames: unknown, options, host, oldProgram) =>
+    defaultCreateProgram(rootNames as string[], options, host, oldProgram);
 
   const postProgramCreate = host.afterProgramCreate;
   host.afterProgramCreate = (program) => postProgramCreate?.(program);
