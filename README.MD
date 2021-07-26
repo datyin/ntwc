@@ -9,6 +9,8 @@ npm install -g ntwc
 ```
 ---
 
+[![YouTube Example](https://img.youtube.com/vi/YAND7q1GTws/0.jpg)](https://www.youtube.com/watch?v=YAND7q1GTws)
+
 ## Features
 - Automatic configuration of TypeScript for specific node version
 - Automatic configuration of WebPack (Optional)
