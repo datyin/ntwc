@@ -2,7 +2,7 @@
   "private": true,
   "name": "@tyin/ntwc",
   "version": "1.0.0",
-  "description": "",
+  "description": "Generate & Build TypeScript Project",
   "bin": {
     "ntwc": "./bin/index.js"
   },
@@ -13,7 +13,17 @@
   "engines": {
     "node": ">=12.22.0"
   },
-  "keywords": [],
+  "keywords": [
+    "backend",
+    "typescript",
+    "cli",
+    "nodejs",
+    "webpack",
+    "eslint",
+    "prettier",
+    "bundle",
+    "compile"
+  ],
   "author": "Jove Jonovski <jovejonovski@gmail.com>",
   "license": "MIT",
   "devDependencies": {
@@ -23,7 +33,7 @@
     "@types/inquirer": "^7.3.3",
     "@types/lodash": "^4.14.171",
     "@types/minimist": "^1.2.2",
-    "@types/node": "^16.4.2",
+    "@types/node": "^16.4.3",
     "@types/semver": "^7.3.8",
     "@types/validate-npm-package-name": "^3.0.3",
     "@types/webpack-node-externals": "^2.5.2",

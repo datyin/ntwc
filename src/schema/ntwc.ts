@@ -7,6 +7,8 @@ export interface Entry {
   argv: string;
   runAfterDevBuild: boolean;
   runAfterBuild: boolean;
+  binaryName: string;
+  path?: string; // only after load
 }
 
 export interface BuilderOptions {
@@ -15,10 +17,16 @@ export interface BuilderOptions {
   cleanBeforeCompile: boolean;
 }
 
+export interface NPMOptions {
+  publish: boolean;
+  private: boolean;
+}
+
 export interface Structure {
   bundle: string;
   distribution: string;
   source: string;
+  resources: string[];
 }
 
 export interface Config {
@@ -26,5 +34,6 @@ export interface Config {
   module: Module;
   structure: Structure;
   builder: BuilderOptions;
+  npm: NPMOptions;
   entries: Entry[];
 }

@@ -2,9 +2,9 @@ import ts from 'typescript';
 import semver from 'semver';
 import _ from 'lodash';
 import log from '../lib/logger';
-import { pathSlash, readJson, saveConfig } from '../lib/filesystem';
+import { fullPath, pathSlash, readJson, saveConfig } from '../lib/filesystem';
 import globals from '../global';
-import { getEntries } from '../common/entries';
+import gs from '../lib/gs';
 import * as TSC from '../schema/tsc';
 import * as ntwc from './ntwc';
 
@@ -103,13 +103,7 @@ function setTarget(): void {
   if (semver.gte(globals.project.target, '12.0.0')) {
     config.compilerOptions.target = 'ES2019';
     config.compilerOptions.module = setModule('CommonJS');
-    config.compilerOptions.lib = [
-      'es2019',
-      'es2020.bigint',
-      'es2020.string',
-      'es2020.symbol.wellknown'
-    ];
-
+    config.compilerOptions.lib = ['es2019', 'es2020.bigint', 'es2020.string', 'es2020.symbol.wellknown'];
     return;
   }
 
@@ -143,8 +137,6 @@ function setTarget(): void {
 }
 
 export async function create(): Promise<void> {
-  log.print(`⏳  Generating ${fileName}...`);
-
   setTarget();
 
   if (!saveConfig(`./${fileName}`, config)) {
@@ -152,7 +144,6 @@ export async function create(): Promise<void> {
     process.exit(1);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
 }
 
@@ -183,7 +174,7 @@ export function logDiagnostics(diagnostics: ts.Diagnostic[]): void {
 
 export function parse(): ts.ParsedCommandLine {
   const cfg = _.cloneDeep(config);
-  const fileNames = getEntries().map((e) => e.path);
+  const fileNames = ntwc.config.entries.map((e) => e.path);
 
   if (!fileNames || !fileNames.length) {
     log.error('Unable to find entrie points.');
@@ -209,13 +200,10 @@ export function parse(): ts.ParsedCommandLine {
 
 export function paths(): TSC.Paths[] {
   const output: TSC.Paths[] = [];
-  const pathsFound = _.get(config, 'compilerOptions.paths', {});
+  const pathsFound = gs.obj(config, 'compilerOptions.paths', {});
+  const sourceDir = '.' + fullPath(ntwc.config.structure.source).replace(globals.project.root, '');
 
-  if (!_.isPlainObject(pathsFound) || _.isEmpty(pathsFound)) {
-    return output;
-  }
-
-  _.forEach(pathsFound, (pathOptions: string[], alias: string) => {
+  _.forEach(pathsFound, (pathOptions: unknown, alias: string) => {
     alias = _.toString(pathSlash(alias).split('/*')[0]);
 
     // Incorrect alias
@@ -223,7 +211,7 @@ export function paths(): TSC.Paths[] {
       return;
     }
 
-    let path = _.toString(_.get(pathOptions, '0', ''));
+    let path = gs.str(pathOptions, [0]);
     path = _.toString(pathSlash(path).split('/*')[0]);
 
     // incorrect path
@@ -231,13 +219,10 @@ export function paths(): TSC.Paths[] {
       return;
     }
 
-    if (path.startsWith('./src/')) {
-      path = path.slice(6);
-    }
-
+    path = _.trimStart(path, sourceDir);
     path = _.trimStart(path, './');
 
-    if (alias && path) {
+    if (alias) {
       output.push({ alias, path });
     }
   });

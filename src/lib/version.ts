@@ -1,4 +1,4 @@
-import { get, toFinite, toString } from 'lodash';
+import gs from './gs';
 import { SemVerNumber } from '../schema/primitives';
 
 export const MINIMAL_VERSION = '8.0.0';
@@ -19,7 +19,7 @@ interface IVersion {
  */
 export function getVersion(input: unknown): IVersion | null {
   if (typeof input === 'number') {
-    const num = toFinite(input);
+    const num = gs.num(input);
 
     if (num > 0) {
       return { major: num, minor: 0, patch: 0 };
@@ -29,17 +29,16 @@ export function getVersion(input: unknown): IVersion | null {
   } else if (typeof input === 'string') {
     const pattern = /\d{1,3}(?:.)?(?:\d{1,3}|x)?(?:.)?(?:\d{1,3}|x)?/gi;
 
-    const str = toString(input).toLowerCase();
+    const str = gs.str(input, undefined, '', { lc: 1 });
     const found = str.match(pattern);
 
     if (found && found[0]) {
       const seq = found[0].split('.');
+      const major = gs.num(seq, [0]);
 
-      return {
-        major: toFinite(get(seq, '0', 0)),
-        minor: toFinite(get(seq, '1', 0)),
-        patch: toFinite(get(seq, '2', 0))
-      };
+      if (major) {
+        return { major: gs.num(seq, [0]), minor: gs.num(seq, [1]), patch: gs.num(seq, [2]) };
+      }
     }
   }
 

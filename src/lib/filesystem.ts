@@ -3,9 +3,10 @@ import fs from 'fs-extra';
 import _ from 'lodash';
 import JSON5 from 'json5';
 import log from './logger';
+import gs from './gs';
 
 export function pathSlash(input: string): string {
-  input = _.trim(_.toString(input)).replace(/\\/g, '/').replace(/\/\//g, '/');
+  input = _.trim(_.toString(input)).replace(/\\/g, '/').replace(/\/\//g, '/').toLowerCase();
 
   if (input !== './') {
     input = _.trimEnd(input, '/');
@@ -26,18 +27,34 @@ export function fullPath(input: string): string {
   return input;
 }
 
-export function readSync(path: string, fallback = ''): string {
+export function writeSync(path: string, content: unknown): boolean {
+  path = gs.str(path, undefined, '', { lc: 1, trim: 1 });
+
+  if (!path) {
+    return false;
+  }
+
   path = fullPath(path);
 
   try {
-    return fs.readFileSync(path, { encoding: 'utf8' });
+    fs.writeFileSync(path, _.toString(content), { encoding: 'utf8' });
+    return true;
   } catch (error) {
-    log.error('readSync failed', error?.message ?? '');
-    return fallback;
+    if (error?.message) {
+      log.error(error.message);
+    }
+
+    return false;
   }
 }
 
-export function readJson(path: string, fallback: unknown = null): unknown {
+export function readSync(path: string, fallback = ''): string {
+  path = gs.str(path, undefined, '', { lc: 1, trim: 1 });
+
+  if (!path) {
+    return '';
+  }
+
   path = fullPath(path);
 
   try {
@@ -50,6 +67,18 @@ export function readJson(path: string, fallback: unknown = null): unknown {
       content = content.slice(1);
     }
 
+    return content;
+  } catch (error) {
+    log.error('readSync failed', error?.message ?? '');
+    return fallback;
+  }
+}
+
+export function readJson(path: string, fallback: unknown = null): unknown {
+  path = fullPath(path);
+
+  try {
+    const content = readSync(path);
     return JSON5.parse(content);
   } catch (error) {
     log.error('readJson failed', error?.message ?? '');

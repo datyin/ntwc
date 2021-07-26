@@ -38,7 +38,8 @@ export function execute(): void {
     }
 
     const cp = spawn('node', [src, ...args], {
-      stdio: 'inherit'
+      stdio: 'inherit',
+      cwd: globals.project.root
     });
 
     cp.on('spawn', () => log.info(`${src} executed.`));

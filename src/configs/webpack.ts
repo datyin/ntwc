@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import webpack from 'webpack';
 import nodeModules from 'webpack-node-externals';
-import { getEntries } from '../common/entries';
 import globals from '../global';
 import { getVersion } from '../lib/version';
 import log from '../lib/logger';
@@ -27,8 +26,8 @@ export async function load(): Promise<void> {
 
   const entries: Record<string, string> = {};
 
-  getEntries().forEach((e) => {
-    entries[e.name] = `./${e.name}.js`;
+  ntwc.config.entries.forEach((e) => {
+    entries[e.script] = `./${e.script}.js`;
   });
 
   _.set(config, 'context', ntwc.config.structure.distribution);
@@ -50,6 +49,7 @@ export async function load(): Promise<void> {
   _.unset(config, 'output.library.name');
   _.unset(config, 'experiments.outputModule');
 
+  _.set(config, 'output.filename', '[name].js');
   _.set(config, 'output.path', ntwc.config.structure.bundle);
 
   // ES Modules are still not supported by webpack
@@ -97,7 +97,6 @@ export function compile(): Promise<void> {
           );
         }
 
-        log.clearLastLine();
         log.print('✔️  Successfully bundled');
         resolve();
       });

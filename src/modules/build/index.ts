@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import ts from 'typescript';
 import log from '../../lib/logger';
-import { emptyDir, copy } from '../../lib/filesystem';
+import { copy, emptyDir } from '../../lib/filesystem';
 import { fixImports } from '../../lib/importer';
 
 import * as ntwc from '../../configs/ntwc';
@@ -16,6 +16,17 @@ async function configuration(): Promise<void> {
 
   if (ntwc.config.builder?.bundle === true) {
     await webpack.load();
+  }
+}
+
+function copyResources(directory: string): void {
+  _.forEach(ntwc.config.structure.resources, (res) => {
+    const withoutPrefix = _.trimStart(res, '.');
+    copy(res, `${directory}${withoutPrefix}`);
+  });
+
+  if (ntwc.config.npm.publish) {
+    copy('./README.MD', `${directory}/README.MD`);
   }
 }
 
@@ -36,11 +47,6 @@ async function build(): Promise<void> {
       log.error('Failed to clean output directory!');
       process.exit(1);
     }
-  }
-
-  if (!copy('./resources', outDir)) {
-    log.error('Failed to copy resources!');
-    process.exit(1);
   }
 
   // Compile
@@ -71,6 +77,8 @@ async function build(): Promise<void> {
   const npmModules = _.keys(pkg.dependencies());
   const externals = fixImports(config.options, paths, npmModules, createdFiles);
 
+  copyResources(outDir);
+
   if (ntwc.config.builder.bundle) {
     if (!emptyDir(ntwc.config.structure.bundle)) {
       log.error('Failed to clean output directory!');
@@ -78,6 +86,7 @@ async function build(): Promise<void> {
     }
 
     await webpack.compile();
+    copyResources(ntwc.config.structure.bundle);
   }
 
   await pkg.generate(externals);

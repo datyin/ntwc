@@ -24,7 +24,7 @@ async function reportWatchStatusChanged(diagnostic: ts.Diagnostic): Promise<void
   switch (diagnostic.code) {
     case 6031:
     case 6032: {
-      console.clear();
+      // console.clear();
 
       log.info(
         `🛠️  ${
@@ -33,6 +33,15 @@ async function reportWatchStatusChanged(diagnostic: ts.Diagnostic): Promise<void
             : 'File change detected. Starting incremental compilation'
         }...`
       );
+
+      const outDir = config.options.outDir as string;
+
+      if (ntwc.config.builder.cleanBeforeCompile) {
+        if (!emptyDir(outDir)) {
+          log.error('Failed to clean output directory!');
+          process.exit(1);
+        }
+      }
 
       break;
     }
@@ -69,15 +78,6 @@ export default async function (): Promise<void> {
   config = typescript.parse();
   paths = typescript.paths();
   npmModules = _.keys(pkg.dependencies());
-
-  const outDir = config.options.outDir as string;
-
-  if (ntwc.config.builder.cleanBeforeCompile) {
-    if (!emptyDir(outDir)) {
-      log.error('Failed to clean output directory!');
-      process.exit(1);
-    }
-  }
 
   const createProgram = ts.createSemanticDiagnosticsBuilderProgram;
   const host = ts.createWatchCompilerHost(

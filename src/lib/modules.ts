@@ -1,6 +1,8 @@
 import { builtinModules } from 'module';
 import { trim } from 'lodash';
 import { pathSlash } from './filesystem';
+import { pathExistsSync } from 'fs-extra';
+import * as ntwc from '../configs/ntwc';
 
 export enum ScriptType {
   UNKNOWN = 0,
@@ -20,24 +22,18 @@ type QuoteSymbol = '"' | "'" | '`' | '';
 
 function quoteSymbol(input: string): QuoteSymbol {
   input = trim(input);
-  let quote: QuoteSymbol = '';
 
-  if (input.startsWith('`')) {
-    quote = '`';
-  } else if (input.startsWith('"')) {
-    quote = '"';
-  } else if (input.startsWith("'")) {
-    quote = "'";
+  // prettier-ignore
+  switch (input[0] ?? '') {
+    case '`': return '`';
+    case '"': return '"';
+    case "'": return "'";
   }
 
-  return quote;
+  return '';
 }
 
-export function findModules(
-  content: string,
-  pattern: RegExp,
-  npmModules: string[]
-): IModulesFound[] {
+export function findModules(content: string, pattern: RegExp, npmModules: string[]): IModulesFound[] {
   const importsFound = content.match(pattern);
 
   if (!importsFound) {
@@ -55,11 +51,11 @@ export function findModules(
 
     const quote = quoteSymbol(pathFound[0]);
     const pathWithoutQuotes = trim(pathFound[0], `'"\``);
-    const pathWithoutQuotesLC = trim(pathFound[0], `'"\``).toLowerCase();
+    const pathWithoutQuotesLC = pathWithoutQuotes.toLowerCase();
     const unixLikePath = pathSlash(pathWithoutQuotes);
 
     // Script Type
-    let type = 0;
+    let type = ScriptType.UNKNOWN;
 
     // prettier-ignore
     if (builtinModules.includes(pathWithoutQuotes) || pathWithoutQuotesLC.startsWith('node:')) {
@@ -68,16 +64,17 @@ export function findModules(
     else if (npmModules.includes(pathWithoutQuotes)) {
       type = ScriptType.EXTERNAL_MODULE;
     }
-    else if (pathWithoutQuotesLC.startsWith('file:') || unixLikePath.startsWith('.') || unixLikePath.startsWith('/')) {
+    else if (
+      pathWithoutQuotesLC.startsWith('file:') ||
+      unixLikePath.startsWith('.') ||
+      unixLikePath.startsWith('/') ||
+      pathExistsSync(`${ntwc.config.structure.distribution}/${pathWithoutQuotesLC}`) ||
+      pathExistsSync(`${ntwc.config.structure.distribution}/${pathWithoutQuotesLC}/index.js`))
+    {
       type = ScriptType.LOCAL_FILE;
     }
 
-    output.push({
-      import: v,
-      quote,
-      path: pathWithoutQuotes,
-      type
-    });
+    output.push({ import: v, quote, path: pathWithoutQuotes, type });
   });
 
   return output;

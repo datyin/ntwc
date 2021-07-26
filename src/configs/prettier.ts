@@ -17,27 +17,20 @@ export const config = {
 };
 
 export async function create(): Promise<void> {
-  log.print(`⏳  Generating ${fileName}...`);
-
   if (!saveConfig(`./${fileName}`, config)) {
-    log.clearLastLine();
     log.error(`❌  Failed to generate ${fileName}`);
     process.exit(1);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
 }
 
 export async function createIgnorePattern(): Promise<void> {
-  log.print(`⏳  Generating ${fileNameIgnore}...`);
-
   if (!createFile(`./${fileNameIgnore}`, ignored)) {
     log.error(`❌  Failed to generate ${fileNameIgnore}`);
     process.exit(1);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileNameIgnore} generated.`);
 }
 

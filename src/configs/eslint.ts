@@ -1,4 +1,4 @@
-import { assignIn, isPlainObject, set } from 'lodash';
+import _ from 'lodash';
 import log from '../lib/logger';
 import { readJson, saveConfig } from '../lib/filesystem';
 import globals from '../global';
@@ -17,18 +17,20 @@ export const config = {
 };
 
 export async function create(): Promise<void> {
-  log.print(`⏳  Generating ${fileName}...`);
-
   if (globals.project.addons.prettier) {
     config.extends.push('plugin:prettier/recommended');
     config.plugins.push('prettier');
 
-    set(config, 'rules.prettier/prettier', [
-      'error',
-      {
-        endOfLine: 'auto'
-      }
-    ]);
+    _.set(
+      config,
+      ['rules', 'prettier/prettier'],
+      [
+        'error',
+        {
+          endOfLine: 'auto'
+        }
+      ]
+    );
   }
 
   if (!saveConfig(`./${fileName}`, config)) {
@@ -36,14 +38,13 @@ export async function create(): Promise<void> {
     process.exit(1);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
 }
 
 export async function load(): Promise<void> {
   const cfg = readJson(`./${fileName}`);
 
-  if (isPlainObject(cfg)) {
-    assignIn(config, cfg);
+  if (_.isPlainObject(cfg)) {
+    _.assignIn(config, cfg);
   }
 }

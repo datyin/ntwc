@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-npm install -g @tyin/ntwc
+npm install -g ntwc
 ```
 ---
 
@@ -90,6 +90,7 @@ Option | Shorthand Option | Description | Default | Values
 ------------ | ------------- | ------------- | ------------- | -------------
 `--entry` | `-e` | Name of the entry without extension | `n/a` | `<string>`
 `--argv` | `-a` | Argv for specific entry | `n/a` | `n/a` or `<string>`
+`--bin` | `-b` | Name for your binary entry | `n/a` | `n/a` or `<string>`
 
 To add new entry point for your application you can use following command
 ```bash
@@ -137,10 +138,20 @@ This will:
 {
   "target": "esnext" or "14.0.0",
   "module": "module", // esnext, module or commonjs
+  "structure": {
+    "bundle": "./bundle", // directory where bundled script will go
+    "distribution": "./dist", // directory where compiled scripts will go
+    "source": "./src", // source directory
+    "resources": ["./public", "./assets"] // custom directories
+  },
   "builder": {
     "bundle": false, // bundle code after production compile using webpack
     "updateBeforeCompile": false, // Update Packages before building project for production
     "cleanBeforeCompile": true // Remove /dist/ contents before each compile
+  },
+  "npm": {
+    "publish": true, // After build, prepare project for npm publishing.
+    "private": false // Append private flag in package.json
   },
   // List of scripts that will be used for compiler to determinate whether script should be executed or not.
   // Also this list will be used if using webpack to point entry points.
@@ -149,7 +160,8 @@ This will:
       "script": "index", // point to script name without extension ./src/{script}.ts
       "argv": "", // Pass arguments to current script. process.argv.
       "runAfterDevBuild": true, // Execute current script after successfull build during serve mode
-      "runAfterBuild": false // Execute current script after successfully build for production mode
+      "runAfterBuild": false, // Execute current script after successfully build for production mode
+      "binaryName": "" // If else then empty string it will be put into package.json/bin/${binaryName}. Used only when npm.publish is true.
     }
   ]
 }

@@ -2,10 +2,11 @@ import _ from 'lodash';
 import fg from 'fast-glob';
 import spawn from 'cross-spawn';
 import log from '../lib/logger';
-import { readJson, saveConfig } from '../lib/filesystem';
+import { readJson, readSync, writeSync, saveConfig, fullPath } from '../lib/filesystem';
 import { getDefaultAuthor } from '../modules/create/defaults';
 import globals from '../global';
 import * as ntwc from './ntwc';
+import { Entry } from '../schema/ntwc';
 
 const fileName = 'package.json';
 const npmScript = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -29,8 +30,6 @@ export const config = {
 };
 
 export async function create(): Promise<void> {
-  log.print(`⏳  Generating ${fileName}...`);
-
   config.name = globals.project.name;
   config.version = globals.project.version;
   config.description = globals.project.description;
@@ -38,19 +37,18 @@ export async function create(): Promise<void> {
   config.type = globals.project.module === 'commonjs' ? 'commonjs' : 'module';
 
   if (globals.project.target !== 'esnext') {
-    _.set(config, 'engines.node', `>=${globals.project.target}`);
+    _.set(config, ['engines', 'node'], `>=${globals.project.target}`);
   }
 
   if (!saveConfig(`./${fileName}`, config)) {
     process.exit(1);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
 }
 
 export async function install(): Promise<void> {
-  log.info('⏳  Installing required packages');
+  log.info('⏳  Installing required packages, please wait...');
 
   const packages = ['@types/node'];
 
@@ -68,7 +66,8 @@ export async function install(): Promise<void> {
 
   try {
     spawn.sync(npmScript, ['install', '--save-dev', ...packages], {
-      stdio: 'ignore'
+      stdio: 'ignore',
+      cwd: globals.project.root
     });
 
     log.clearLastLine();
@@ -80,10 +79,10 @@ export async function install(): Promise<void> {
 }
 
 export async function update(): Promise<void> {
-  log.info('⏳  Updating packages');
+  log.info('⏳  Updating packages, please wait...');
 
   try {
-    spawn.sync(npmScript, ['update'], { stdio: 'ignore' });
+    spawn.sync(npmScript, ['update'], { stdio: 'ignore', cwd: globals.project.root });
 
     log.clearLastLine();
     log.print(`✔️  All packages were updated.`);
@@ -123,8 +122,28 @@ export function dependencies(): Record<string, string> {
   return dep;
 }
 
+function setBinaryPrefix(entry: Entry): void {
+  const paths = [`${ntwc.config.structure.distribution}/${entry.script}.js`];
+
+  if (ntwc.config.builder.bundle) {
+    paths.push(`${ntwc.config.structure.bundle}/${entry.script}.js`);
+  }
+
+  _.forEach(paths, (path) => {
+    path = fullPath(path);
+    let content = readSync(path);
+
+    if (!content.startsWith('#!/usr/bin/env node')) {
+      content = `#!/usr/bin/env node\n${content}`;
+    }
+
+    writeSync(path, content);
+  });
+}
+
 export async function generate(externals: string[]): Promise<void> {
   const cfg = {
+    private: ntwc.config.npm.private,
     name: config.name,
     version: config.version,
     description: config.description,
@@ -135,7 +154,7 @@ export async function generate(externals: string[]): Promise<void> {
     scripts: {
       start: 'node .'
     },
-    keywords: [],
+    keywords: config.keywords,
     engines: { node: `>=${ntwc.config.target}` },
     dependencies: {}
   };
@@ -155,7 +174,12 @@ export async function generate(externals: string[]): Promise<void> {
 
   // Create specific start point for each entry
   _.forEach(ntwc.config.entries, (entry) => {
-    _.set(cfg, `scripts.start:${entry.script}`, `./${entry.script}.js`);
+    _.set(cfg, ['scripts', `start:${entry.script}`], `./${entry.script}.js`);
+
+    if (entry.binaryName) {
+      setBinaryPrefix(entry);
+      _.set(cfg, ['bin', entry.binaryName], `./${entry.script}.js`);
+    }
   });
 
   // get used dependencies only

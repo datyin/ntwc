@@ -1,12 +1,12 @@
+import { join } from 'path';
 import _ from 'lodash';
 import ts from 'typescript';
-import { join } from 'path';
 import { outputFileSync, statSync } from 'fs-extra';
+import { fullPath } from './filesystem';
 import { findModules, IModulesFound, ScriptType } from './modules';
 import log from './logger';
 import * as ntwc from '../configs/ntwc';
 import * as TSC from '../schema/tsc';
-import { fullPath } from './filesystem';
 
 type SS = Record<string, string>;
 
@@ -38,7 +38,7 @@ function correctPath(
         // convert alias path to relative path
         if (i.path.startsWith(p.alias)) {
           const path = `./${_.repeat('../', pathLevels)}${p.path}`;
-          let deAlias = i.path.replace(p.alias, path);
+          let deAlias = i.path.replace(p.alias, path).replace(/\/\//g, '/');
 
           // Missing extension
           if (addExtension && !deAlias.endsWith('.js')) {
@@ -46,12 +46,9 @@ function correctPath(
             deAlias = `${deAlias}.js`;
           }
 
-          const correct = i.import.replace(
-            `${i.quote}${i.path}${i.quote}`,
-            `${i.quote}${deAlias}${i.quote}`
-          );
-
+          const correct = i.import.replace(`${i.quote}${i.path}${i.quote}`, `${i.quote}${deAlias}${i.quote}`);
           content = content.replace(i.import, correct);
+
           return false;
         }
 
@@ -66,6 +63,10 @@ function correctPath(
         // add missing /index if directory is provided
         i.path = appendIndex(i.path);
 
+        if (!i.path.startsWith('./')) {
+          i.path = `./${i.path}`;
+        }
+
         const correct = i.import.replace(
           `${i.quote}${originalPath}${i.quote}`,
           `${i.quote}${i.path}.js${i.quote}`
@@ -79,6 +80,7 @@ function correctPath(
   return content;
 }
 
+// TODO: Make this multithread
 export function fixImports(
   options: ts.CompilerOptions,
   paths: TSC.Paths[],
@@ -94,9 +96,8 @@ export function fixImports(
     let contentWithoutComments = content;
 
     if (!options.removeComments) {
-      contentWithoutComments = content.replace(
-        /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
-        (m, g) => (g ? '' : m)
+      contentWithoutComments = content.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) =>
+        g ? '' : m
       );
     }
 
@@ -112,32 +113,21 @@ export function fixImports(
           npmModules
         );
 
-        externals.push(
-          ...imports.filter((i) => i.type === ScriptType.EXTERNAL_MODULE).map((i) => i.path)
-        );
-
+        externals.push(...imports.filter((i) => i.type === ScriptType.EXTERNAL_MODULE).map((i) => i.path));
         content = correctPath(content, imports, paths, pathLevels, true);
+
         break;
       }
     }
 
-    const requires = findModules(
-      contentWithoutComments,
-      /require\(["|'|`](.*?)["|'|`]\)/gi,
-      npmModules
-    );
+    const requires = findModules(contentWithoutComments, /require\(["|'|`](.*?)["|'|`]\)/gi, npmModules);
 
-    externals.push(
-      ...requires.filter((i) => i.type === ScriptType.EXTERNAL_MODULE).map((i) => i.path)
-    );
-
+    externals.push(...requires.filter((i) => i.type === ScriptType.EXTERNAL_MODULE).map((i) => i.path));
     content = correctPath(content, requires, paths, pathLevels, false);
 
     // Save script file
     try {
-      outputFileSync(filePath, content, {
-        encoding: 'utf8'
-      });
+      outputFileSync(filePath, content, { encoding: 'utf8' });
     } catch (error) {
       log.error(error?.message ?? '');
     }

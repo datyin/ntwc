@@ -6,7 +6,7 @@ import globals from '../global';
 import validate from '../validator/ntwc';
 import * as Schema from '../schema/ntwc';
 
-const fileName = '.ntwcrc.json';
+export const fileName = '.ntwcrc.json';
 
 export const config: Schema.Config = {
   target: RECOMMANDED_VERSION,
@@ -14,31 +14,35 @@ export const config: Schema.Config = {
   structure: {
     bundle: './bundle',
     distribution: './dist',
-    source: './src'
+    source: './src',
+    resources: ['./public']
   },
   builder: {
     bundle: false,
     updateBeforeCompile: false,
     cleanBeforeCompile: true
   },
+  npm: {
+    publish: true,
+    private: false
+  },
   entries: [
     {
       script: 'index',
       argv: '',
       runAfterDevBuild: true,
-      runAfterBuild: false
+      runAfterBuild: false,
+      binaryName: ''
     }
   ]
 };
 
 export async function create(): Promise<void> {
-  log.print(`⏳  Generating ${fileName}...`);
-
   config.target = globals.project.target as Schema.Target;
   config.module = globals.project.module as Schema.Module;
 
   if (globals.project.addons.webpack) {
-    _.set(config, 'builder.bundle', true);
+    _.set(config, ['builder', 'bundle'], true);
   }
 
   if (!saveConfig(`./${fileName}`, config)) {
@@ -46,18 +50,14 @@ export async function create(): Promise<void> {
     process.exit(1);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileName} generated.`);
 }
 
 export async function save(): Promise<void> {
-  log.print(`⏳  Updating ${fileName}...`);
-
   if (!saveConfig(`./${fileName}`, config)) {
     log.error(`❌  Failed to update ${fileName}`);
   }
 
-  log.clearLastLine();
   log.print(`✔️  ${fileName} updated.`);
 }
 

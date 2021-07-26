@@ -2,40 +2,43 @@ import _ from 'lodash';
 import { getParam } from '../../common/params';
 import globals from '../../global';
 import { createFile, fullPath } from '../../lib/filesystem';
-import { getEntries } from '../../common/entries';
+import gs from '../../lib/gs';
 import log from '../../lib/logger';
 import * as ntwc from '../../configs/ntwc';
 
-async function addEntry(input: unknown, argv: unknown): Promise<void> {
-  const name = _.trim(_.toString(input)).toLowerCase();
+async function addEntry(input: unknown, argv: unknown, binaryName: unknown): Promise<void> {
+  const name = gs.str(input, undefined, '', { trim: 1, lc: 1 });
 
   if (!name) {
     return;
   }
 
   const path = fullPath(`${globals.project.root}/src/${name}.ts`);
-  createFile(path, `console.log('Entry: ${name}');\n`);
+  const created = createFile(path, `console.log('Entry: ${name}');\n`);
 
-  // Add to confing
-  const found = getEntries().find((e) => e.name === name);
+  if (created) {
+    // Add to confing
+    const found = ntwc.config.entries.find((e) => e.script === name);
 
-  if (found) {
-    log.warn(`Entry with name '${name}' already exists in ntwcrc.json`);
-    return;
+    if (found) {
+      log.warn(`Entry with name '${name}' already exists in ${ntwc.fileName}`);
+      return;
+    }
+
+    // Pass params and strip quote marks if there are some
+    let params = gs.str(argv, undefined, '', { trim: 1 });
+    params = _.trim(params, `"'`);
+
+    ntwc.config.entries.push({
+      script: name,
+      argv: params,
+      runAfterDevBuild: true,
+      runAfterBuild: false,
+      binaryName: gs.str(binaryName, undefined, '', { trim: 1 })
+    });
+
+    await ntwc.save();
   }
-
-  // Pass params and strip quote marks if there are some
-  let params = _.toString(_.trim(argv as string));
-  params = _.trim(params, `"'`);
-
-  ntwc.config.entries.push({
-    script: name,
-    argv: params,
-    runAfterDevBuild: true,
-    runAfterBuild: false
-  });
-
-  await ntwc.save();
 }
 
 export default async function (): Promise<void> {
@@ -43,8 +46,9 @@ export default async function (): Promise<void> {
 
   const entry = getParam('entry', 'e');
   const argv = getParam('argv', 'a');
+  const binaryName = getParam('bin', 'b');
 
   if (entry) {
-    addEntry(entry, argv);
+    addEntry(entry, argv, binaryName);
   }
 }
